@@ -1,1 +1,1 @@
-# Internship-script
+实习写的脚本
