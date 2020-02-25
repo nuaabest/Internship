@@ -1,0 +1,7 @@
+bbcp安装及使用：
+1、下载： wget springdale.princeton.edu/data/springdale/7/x86_64/os/Computational//bbcp-15.02.03.01.1-1.sdl7.1.x86_64.rpm
+2、安装：yum install bbcp-15.02.03.01.1-1.sdl7.1.x86_64.rpm -y
+3、上传命令：bbcp -4 -k -a -r -v -P 2 -s 4 -T 'ssh -p 8888 -x -a -oFallBackToRsh=no %I -l %U %H bbcp' 源文件 lbc@111.198.66.50:目标路径
+
+bbcp相对于scp的传输速率有很大幅度的提升，大文件适合用这种方式进行传输
+bbcp的文档：https://www.slac.stanford.edu/~abh/bbcp/
