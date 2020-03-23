@@ -34,18 +34,27 @@ def commit_data_to_Beijing():
 
             cmd = "touch " + uploading_path
             os.system(cmd)
-	    print(cmd)
+			print(cmd)
 
             cmd = "expect /shared/util_scripts/crontab_upload_data.sh " + local + " " + remote
             os.system(cmd)
-	    print(cmd)
+			print(cmd)
             
+			all_files = os.listdir(file_path)
+			print(all_files)
+			
             cmd = "rm -rf " + local
             os.system(cmd)
-	    print(cmd)
+			print(cmd)
 
+			all_files = os.listdir(file_path)
+			print(all_files)
+			
             cmd = "rm -rf " + uploading_path
             os.system(cmd)
-	    print(cmd)
+			print(cmd)
+			
+			all_files = os.listdir(file_path)
+			print(all_files)
 
 commit_data_to_Beijing()
