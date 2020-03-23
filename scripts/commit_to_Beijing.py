@@ -1,8 +1,4 @@
-# *=======================================================*
-# -*- coding:utf-8 -*-
-# * time : 2020-02-12 8:34
-# * author : lichengyi
-# *=======================================================*
+#coding:utf-8
 #commit yjj_data to beijing
 
 import os
@@ -22,7 +18,7 @@ def commit_data_to_Beijing():
     else :
         all_files = os.listdir(file_path)
         all_files = sorted(all_files,  key=lambda x: os.path.getmtime(os.path.join(file_path, x)))
-        #print(all_files)
+        print(all_files)
         #print(os.path.getctime("C:\\Users\\Administrator\\Desktop\\up_load\\3.zip"))
         length = len(all_files)
         if length == 0:
@@ -32,26 +28,24 @@ def commit_data_to_Beijing():
             oldest_zip = all_files[0]
             local = file_path + oldest_zip
             print(local)
-            remote = "/liandao/data_log/IRL-LH/lichengyi"
+            remote = "/liandao/yjj_data/TK10/lh_strat"
             #oldest_zip就是存在的最长时间的压缩包
             #一旦有压缩包需要上传就创建up_loading.txt文件来确保不会有其他压缩包一起上传
 
             cmd = "touch " + uploading_path
             os.system(cmd)
-	        #print("creat file")
+	    print(cmd)
 
-            cmd = "expect /shared/commit_zip.sh " + local + " " + remote
+            cmd = "expect /shared/util_scripts/crontab_upload_data.sh " + local + " " + remote
             os.system(cmd)
+	    print(cmd)
             
-            #f = open('./data_log.txt', 'a+')
-            #print >> f,cmd
-            #f.close()
-            #time.sleep(10) 
             cmd = "rm -rf " + local
             os.system(cmd)
+	    print(cmd)
 
             cmd = "rm -rf " + uploading_path
             os.system(cmd)
-            #print("rm file")
+	    print(cmd)
 
 commit_data_to_Beijing()
