@@ -11,6 +11,7 @@
    间，如果已存在就不用
 3、然后再对每个交易所进行操作，扫描每个交易所里面的文件夹，按照后缀
    进行分类并产生新的文件夹
+采用多进程的方式将48个时间点的压缩包同时进行处理，然后再合并即可
 运行方式：sudo python3 concordance_data.py [交易所]/[docker]/[日期]
 实际上的路径应该具体条件具体给出，但是北京存放的路径是上面形式
 
@@ -18,7 +19,8 @@ unzupFile、diffExchange、diffType只是用来对文件进行分类
 '''
 import os
 import sys
-#import pandas as pd
+import multiprocessing
+import pandas as pd
 import csv
 
 path = "/liandao/yjj_data/" + sys.argv[1]
@@ -31,28 +33,31 @@ saveData = ""
 
 #这个函数只是用来进行解压缩
 def unzipFile():
+   print("unzip start")
    os.chdir(path)
-   count = 0
    dirs = os.listdir(path)
+   count = 0   
    for file in dirs:
       if os.path.isfile(file) != True:
          continue
       else:
-         cmd = "unzip -o -d . " + file
+         count += 1
+         cmd = "unzip -o -d " + path + "/shared_" + str(count) + " " + file
          os.system(cmd)
          #在产生一个文件夹之后就可以对这个文件夹进行扫描
          #以产生对应的交易所目录
-         diffExchange(path, count)
-         count += 1
-         os.chdir(path)
-         cmd = "rm -rf ./shared"
-         os.system(cmd)
+         finName = file.split('_', 1)[0]
+         p = multiprocessing.Process(target = diffExchange, args=(path, finName, count))
+         p.start()
+         
       os.chdir(path)
+   print("unzip end")
    return
 
 #这个函数将解压缩的文件夹里面的csv文件分交易所存放并按次序取名
-def diffExchange(file, count):
-   filePath = file + mid_path
+def diffExchange(file, finName, count):
+   print("exchange start")
+   filePath = file + "/shared_" + str(count) + mid_path
    os.chdir(filePath)
    dirs = os.listdir(filePath)
    for cfile in dirs:
@@ -64,65 +69,86 @@ def diffExchange(file, count):
          if exchangeName not in exchange:
             exchange.append(exchangeName)
             os.chdir(path)
-            if os.path.exists("./" + exchangeName) != True:
+            if os.path.exists(path + exchangeName) != True:
                cmd = "mkdir " + exchangeName
                os.system(cmd)
+               
          os.chdir(filePath)
-         newName =  fullName + "_" + str(count) + ".csv"
-         cmd = "mv " + cfile + " " + newName
+         newName =  finName + "_" + fullName + "_" + ".csv"
+         cmd = "mv " + filePath + "/" + cfile + " " + newName
          os.system(cmd)
 
-         cmd = "mv " + newName + " ../../../" + exchangeName
+         cmd = "mv " + filePath + "/" + newName + " " + path + "/" + exchangeName
          os.system(cmd)
- 
+         
+
+   os.chdir(path)
+   diffType(finName, count)
+   print("exchang end")
    return
 
 #这个函数就是将同一个交易所的105、106这种分类型存放
-def diffType():
+def diffType(finName, count):
+   print("type start")
    dirs = os.listdir(path)
    for file in dirs:
-      if os.path.isdir(file) != True:
+      if file not in exchange:
          continue
       else:
-         os.chdir("./" + file)
+         os.chdir(path + "/" + file)
          mdirs = os.listdir(os.getcwd())
          for mfile in mdirs:
-            if os.path.isfile(mfile) != True:
+            if os.path.isfile(path + "/" + file + "/" + mfile) != True:
                continue
             else:
-               dataType = mfile.split('_', 2)[1]
+               dataType = mfile.split('_', 3)[2]
                if dataType not in typeInfo:
                   typeInfo.append(dataType)
 
-               if os.path.exists("./" + dataType) != True:
-                  cmd = "mkdir " + dataType
+               if os.path.exists(path + "/" + file + "/" + dataType) != True:
+                  if dataType == "106":
+                     dataType = "book"
+                  elif dataType == "105":
+                     dataType = "trade"
+                  elif dataType == "110":
+                     dataType = "kline"
+                  if dataType != "204" and dataType != "205" and dataType != "206" and dataType != "207":     
+                     cmd = "mkdir " + path + "/" + file + "/" + dataType
+                     os.system(cmd)
+               
+               if dataType != "204" and dataType != "205" and dataType != "206" and dataType != "207":
+                  cmd = "mv " + path + "/" + file + "/" + mfile + " " + path + "/" + file + "/" + dataType
                   os.system(cmd)
-               cmd = "mv " + mfile + " ./" + dataType
+               
+                  os.chdir(path + "/" + file + "/" + dataType)
+                  diffCoin(os.getcwd(), path + "/" + file + "/" + dataType + "/" + mfile, finName, mfile)
+                  cmd = "rm -rf " + path + "/" + file + "/" + dataType + "/" + mfile
+                  os.system(cmd)
+
+               cmd = "rm -rf " + path + "/" + file + "/" + mfile
                os.system(cmd)
 
-               os.chdir("./" + dataType)
-               diffCoin(os.getcwd(), mfile)
-               cmd = "rm -rf ./" + mfile
-               os.system(cmd)
-               os.chdir("../")
-
-      os.chdir("../")
    typeInfo.clear()
+   cmd = "rm -rf " + path + "/shared_" + str(count)
 
+   os.system(cmd)
+   print("type end")
    return
 
 #下面这个函数是真正开始将相同币对集中起来
-def diffCoin(truePath, filename):
-   print(truePath.rsplit('/',1)[1])
-   ''''
+def diffCoin(truePath, filename, finName, mfile):
+   print("coin start")
+   newFile = ""
+   nowType = truePath.rsplit('/',1)[1]
+   flagtype = 0
+   
    dirs = os.listdir(truePath)
    if os.path.exists(filename) != True:
       print("don't exist this file:" + filename)
       return
-   flag = 0
-   
+   flag = 0   
    for file in dirs:
-      if file != filename:
+      if file != mfile:
          continue
       elif os.path.getsize(filename) == 0:
          print("this file " + filename + " is empty")
@@ -131,39 +157,34 @@ def diffCoin(truePath, filename):
          csv_file = csv.reader(outFile)
          for row_data in csv_file:
             if flag == 0:
-               #saveData = row_data
-               flag = 1
+               saveData = row_data
+               flag += 1
                continue
             else:
-               newFile = row_data[0] + ".csv"               
+               if nowType == "trade":
+                  newFile = finName + "_" + row_data[2] + ".csv"
+               elif nowType == "book":
+                  newFile = finName + "_" + row_data[0] + ".csv"
+               elif nowType == "kline":
+                  newFile = finName + "_" + row_data[1] + ".csv"
+               
                if os.path.exists(newFile) != True:                                 
-                  cmd = "touch " + newFile
+                  cmd = "touch " + truePath + "/" + newFile
                   os.system(cmd)
+                  flagtype = 1
+               
                inFile = open(newFile, 'a', newline='')
+ 
                csv_write = csv.writer(inFile, dialect='excel')
-               csv_write.writerow(row_data)
-               inFile.close()
-            flag = 1
-         outFile.close()
-      '''
+               if flagtype == 1:
+                  csv_write.writerow(saveData)
+                  flagtype = 0
+               
+               csv_write.writerow(row_data)               
+            flag += 1 
+      
+   print("coin end")
    return
 
-#由于105、106、110的文件不一样，不能统一处理
-def deal105():
-   return
 
-def deal106():
-   return
-
-def deal110():
-   return
-
-#通过这个main函数来控制函数执行顺序
-def main():
-   unzipFile()
-   diffType()
-
-   #os.system("python /liandao/yjj_data/TK15/bmd/md/deal_data.py")
-   return
-
-main()
+unzipFile()
