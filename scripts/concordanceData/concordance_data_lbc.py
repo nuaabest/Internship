@@ -66,12 +66,12 @@ def diffExchange(file, finName, count):
       else:
          exchangeName = cfile.split('_', 1)[0]
          fullName = cfile.split('.', 1)[0]
-         if exchangeName not in exchange:
-            exchange.append(exchangeName)
-            os.chdir(path)
-            if os.path.exists(path + exchangeName) != True:
-               cmd = "mkdir " + exchangeName
-               os.system(cmd)
+         #if exchangeName not in exchange:
+         #   exchange.append(exchangeName)
+         os.chdir(path)
+         if os.path.exists(path + "/" + exchangeName) != True:
+            cmd = "mkdir " + path + "/" + exchangeName
+            os.system(cmd)
                
          os.chdir(filePath)
          newName =  finName + "_" + fullName + "_" + ".csv"
@@ -102,21 +102,22 @@ def diffType(finName, count):
                continue
             else:
                dataType = mfile.split('_', 3)[2]
-               if dataType not in typeInfo:
-                  typeInfo.append(dataType)
+               #if dataType not in typeInfo:
+               #   typeInfo.append(dataType)
 
-               if os.path.exists(path + "/" + file + "/" + dataType) != True:
-                  if dataType == "106":
-                     dataType = "book"
-                  elif dataType == "105":
-                     dataType = "trade"
-                  elif dataType == "110":
-                     dataType = "kline"
-                  if dataType != "204" and dataType != "205" and dataType != "206" and dataType != "207":     
+               #if os.path.exists(path + "/" + file + "/" + dataType) != True:
+               if dataType == "106":
+                  dataType = "book"
+               elif dataType == "105":
+                  dataType = "trade"
+               elif dataType == "110":
+                  dataType = "kline"
+               if dataType == "book" or dataType == "trade" or dataType == "kline" : 
+                  if os.path.exists(path + "/" + file + "/" + dataType) != True:    
                      cmd = "mkdir " + path + "/" + file + "/" + dataType
                      os.system(cmd)
                
-               if dataType != "204" and dataType != "205" and dataType != "206" and dataType != "207":
+               if dataType == "book" or dataType == "trade" or dataType == "kline" :
                   cmd = "mv " + path + "/" + file + "/" + mfile + " " + path + "/" + file + "/" + dataType
                   os.system(cmd)
                
@@ -130,8 +131,8 @@ def diffType(finName, count):
 
    typeInfo.clear()
    cmd = "rm -rf " + path + "/shared_" + str(count)
-
    os.system(cmd)
+   print(cmd)
    print("type end")
    return
 
@@ -168,7 +169,7 @@ def diffCoin(truePath, filename, finName, mfile):
                elif nowType == "kline":
                   newFile = finName + "_" + row_data[1] + ".csv"
                
-               if os.path.exists(newFile) != True:                                 
+               if os.path.exists(truePath + "/" + newFile) != True:                                 
                   cmd = "touch " + truePath + "/" + newFile
                   os.system(cmd)
                   flagtype = 1

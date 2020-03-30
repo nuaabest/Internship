@@ -18,8 +18,7 @@ def commit_data_to_Beijing():
     else :
         all_files = os.listdir(file_path)
         all_files = sorted(all_files,  key=lambda x: os.path.getmtime(os.path.join(file_path, x)))
-        print(all_files)
-        #print(os.path.getctime("C:\\Users\\Administrator\\Desktop\\up_load\\3.zip"))
+        
         length = len(all_files)
         if length == 0:
             print("no zip to commit")
@@ -28,33 +27,24 @@ def commit_data_to_Beijing():
             oldest_zip = all_files[0]
             local = file_path + oldest_zip
             print(local)
-            remote = "/liandao/yjj_data/TK10/lh_strat"
+            remote = "/liandao/yjj_data/TK15/md"
             #oldest_zip就是存在的最长时间的压缩包
             #一旦有压缩包需要上传就创建up_loading.txt文件来确保不会有其他压缩包一起上传
 
             cmd = "touch " + uploading_path
             os.system(cmd)
-			print(cmd)
 
             cmd = "expect /shared/util_scripts/crontab_upload_data.sh " + local + " " + remote
             os.system(cmd)
-			print(cmd)
             
-			all_files = os.listdir(file_path)
-			print(all_files)
-			
-            cmd = "rm -rf " + local
-            os.system(cmd)
-			print(cmd)
+			cmd = "expect /shared/ifExist.exp lbc@111.198.66.50 " + remote "/" +  oldest_zip
+			flag = os.system(cmd)
+			if flag == False:
+				cmd = "rm -rf " + local
+				os.system(cmd)
+				print("not upload::" + cmd)
 
-			all_files = os.listdir(file_path)
-			print(all_files)
-			
             cmd = "rm -rf " + uploading_path
             os.system(cmd)
-			print(cmd)
-			
-			all_files = os.listdir(file_path)
-			print(all_files)
 
 commit_data_to_Beijing()
