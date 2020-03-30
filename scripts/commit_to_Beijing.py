@@ -17,6 +17,7 @@ def commit_data_to_Beijing():
     #获取到这个目录下的所有文件，然后查看是否存在.zip文件
     else :
         all_files = os.listdir(file_path)
+		print(all_files)
         all_files = sorted(all_files,  key=lambda x: os.path.getmtime(os.path.join(file_path, x)))
         
         length = len(all_files)
@@ -37,13 +38,13 @@ def commit_data_to_Beijing():
             cmd = "expect /shared/util_scripts/crontab_upload_data.sh " + local + " " + remote
             os.system(cmd)
             
-			cmd = "expect /shared/ifExist.exp lbc@111.198.66.50 " + remote "/" +  oldest_zip
+			cmd = "expect /shared/ifExist.exp lbc@111.198.66.50 " + remote + "/" +  oldest_zip
 			flag = os.system(cmd)
 			if flag == False:
 				cmd = "rm -rf " + local
 				os.system(cmd)
 			else:
-				print("not upload::" + cmd)
+				print("not upload::" + oldest_zip)
 
             cmd = "rm -rf " + uploading_path
             os.system(cmd)
