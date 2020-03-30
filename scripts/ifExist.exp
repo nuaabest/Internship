@@ -1,0 +1,14 @@
+# !/usr/bin/expect
+set remoteHost [lindex $argv 0]
+set remoteFile [lindex $argv 1]
+set timeout -1
+
+spawn ssh -p 8888 $remoteHost test -e $remoteFile
+expect "*assword" {  send "tsmc1942\n\r" }
+
+expect eof
+
+catch wait result
+#send $result
+exit [lindex $result 3]
+
