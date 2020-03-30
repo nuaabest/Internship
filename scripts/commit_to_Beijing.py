@@ -42,6 +42,7 @@ def commit_data_to_Beijing():
 			if flag == False:
 				cmd = "rm -rf " + local
 				os.system(cmd)
+			else:
 				print("not upload::" + cmd)
 
             cmd = "rm -rf " + uploading_path
