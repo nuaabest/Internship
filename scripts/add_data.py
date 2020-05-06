@@ -1,6 +1,6 @@
 # *=======================================================*
 # -*- coding:utf-8 -*-
-# * time : 2020-02-22 9:47
+# *   time : 2020-02-22 9:47
 # * author : lichengyi
 # *=======================================================*
 # 将相同价格的订单数量加起来
@@ -29,7 +29,7 @@ def add_data():
     
     length_asks = len(mid_json['asks'])
     length_bids = len(mid_json['bids'])
-    #count = 0
+    
     asks_pre_price = float(mid_json['asks'][0][1])
     asks_pre_volume = 0
     bids_pre_price = float(mid_json['bids'][0][1])
@@ -73,17 +73,14 @@ def add_data():
                 bids_volume = float(mid_json['bids'][count_bids][2])
             if bids_price == bids_pre_price:
                 bids_volume += bids_pre_volume
-            #前一次的价格和后一次的价格不一样的时候就表示需要
             else:
                 local = if_data_exist(bids_pre_price, bids)
                 if local == -1:
-                #返回的值是-1表明此时列表中无这个价格的数据，直接添加前一个数据
                     mid = []
                     mid.append(bids_pre_price)
                     mid.append(bids_pre_volume)
                     bids.append(mid)
                 else:
-                #如果之前在列表中有一个相同的价格，就需要将本来有的加起来
                     bids[local][1] += bids_pre_volume
                 
             bids_pre_price = bids_price

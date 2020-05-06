@@ -5,8 +5,8 @@
 # * author : lichengyi
 # *=======================================================*
 # concordance data
-preday=`date -d "-1 days" +%Y-%m-%d`
-predayF=`date -d "-1 days" +%Y%m%d`
+preday=$1
+predayF=$2
 
 path='liandao/yjj_data'
 targetPath='liandao/yjj_md_data'
@@ -14,24 +14,32 @@ scripts='liandao/lcy-scripts'
 
 function concordanceData()
 {
-    echo "1999nyc" | sudo -S mkdir /$path/$1/$preday
+    echo "tsmc1942" | sudo -S mkdir /$path/$1/$preday
 
-    echo "1999nyc" | sudo -S mv /$path/$1/$predayF* /$path/$1/$preday
+    echo "tsmc1942" | sudo -S mv /$path/$1/$predayF* /$path/$1/$preday
 
-    echo "1999nyc" | sudo -S python3 /$scripts/concordance_data.py $2
+    echo "tsmc1942" | sudo -S python3 /$scripts/concordance_data_lbc.py $2
 
-    echo "1999nyc" | sudo -S python3 /$scripts/combine.py $2
+    echo "tsmc1942" | sudo -S python3 /$scripts/combine.py $2 $3
+ 
+    cd /$path/$1
+ 
+    echo "tsmc1942" | sudo -S python3 /$scripts/check_105_time_diff1.py $preday $3 
 
-    echo "1999nyc" | sudo -S zip -r /$path/$1/$3"-"$preday".zip" /$path/$1/$preday -x *.zip
+    echo "tsmc1942" | sudo -S python3 /$scripts/mail.py $preday 105 $3
 
-    echo "1999nyc" | sudo -S mv /$path/$1/$3"-"$preday".zip" /$targetPath/$3
+    echo "tsmc1942" | sudo -S python3 /$scripts/mail.py $preday 106 $3
+
+    echo "tsmc1942" | sudo -S zip -r /$path/$1/$3"-"$preday".zip" /$path/$1/$preday -x *.zip
+
+    echo "tsmc1942" | sudo -S mv /$path/$1/$3"-"$preday".zip" /$targetPath/$3
 
     rmPath=/$path/$1/$preday
     for file in `ls $rmPath`
     do
         if [ -d $rmPath/$file ]
         then
-            rm -rf $rmPath/$file
+            echo "tsmc1942" | sudo -S rm -rf $rmPath/$file
         fi
     done
 }

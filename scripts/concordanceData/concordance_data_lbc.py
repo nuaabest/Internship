@@ -66,8 +66,8 @@ def diffExchange(file, finName, count):
       else:
          exchangeName = cfile.split('_', 1)[0]
          fullName = cfile.split('.', 1)[0]
-         #if exchangeName not in exchange:
-         #   exchange.append(exchangeName)
+         if exchangeName not in exchange:
+            exchange.append(exchangeName)
          os.chdir(path)
          if os.path.exists(path + "/" + exchangeName) != True:
             cmd = "mkdir " + path + "/" + exchangeName
@@ -80,7 +80,6 @@ def diffExchange(file, finName, count):
 
          cmd = "mv " + filePath + "/" + newName + " " + path + "/" + exchangeName
          os.system(cmd)
-         
 
    os.chdir(path)
    diffType(finName, count)
@@ -91,21 +90,19 @@ def diffExchange(file, finName, count):
 def diffType(finName, count):
    print("type start")
    dirs = os.listdir(path)
-   for file in dirs:
-      if file not in exchange:
+   for cfile in dirs:
+      if cfile not in exchange:
          continue
       else:
-         os.chdir(path + "/" + file)
-         mdirs = os.listdir(os.getcwd())
+         os.chdir(path + "/" + cfile)
+         mdirs = os.listdir(path + "/" + cfile)
          for mfile in mdirs:
-            if os.path.isfile(path + "/" + file + "/" + mfile) != True:
+            if os.path.isfile(path + "/" + cfile + "/" + mfile) != True:
+               continue
+            if mfile.split('_',1)[0] != finName:
                continue
             else:
                dataType = mfile.split('_', 3)[2]
-               #if dataType not in typeInfo:
-               #   typeInfo.append(dataType)
-
-               #if os.path.exists(path + "/" + file + "/" + dataType) != True:
                if dataType == "106":
                   dataType = "book"
                elif dataType == "105":
@@ -113,20 +110,19 @@ def diffType(finName, count):
                elif dataType == "110":
                   dataType = "kline"
                if dataType == "book" or dataType == "trade" or dataType == "kline" : 
-                  if os.path.exists(path + "/" + file + "/" + dataType) != True:    
-                     cmd = "mkdir " + path + "/" + file + "/" + dataType
+                  if os.path.exists(path + "/" + cfile + "/" + dataType) != True:    
+                     cmd = "mkdir " + path + "/" + cfile + "/" + dataType
                      os.system(cmd)
                
-               if dataType == "book" or dataType == "trade" or dataType == "kline" :
-                  cmd = "mv " + path + "/" + file + "/" + mfile + " " + path + "/" + file + "/" + dataType
+                  cmd = "mv " + path + "/" + cfile + "/" + mfile + " " + path + "/" + cfile + "/" + dataType
                   os.system(cmd)
                
-                  os.chdir(path + "/" + file + "/" + dataType)
-                  diffCoin(os.getcwd(), path + "/" + file + "/" + dataType + "/" + mfile, finName, mfile)
-                  cmd = "rm -rf " + path + "/" + file + "/" + dataType + "/" + mfile
+                  os.chdir(path + "/" + cfile + "/" + dataType)
+                  diffCoin(os.getcwd(), path + "/" + cfile + "/" + dataType + "/" + mfile, finName, mfile)
+                  cmd = "rm -rf " + path + "/" + cfile + "/" + dataType + "/" + mfile
                   os.system(cmd)
 
-               cmd = "rm -rf " + path + "/" + file + "/" + mfile
+               cmd = "rm -rf " + path + "/" + cfile + "/" + mfile
                os.system(cmd)
 
    typeInfo.clear()
@@ -186,6 +182,5 @@ def diffCoin(truePath, filename, finName, mfile):
       
    print("coin end")
    return
-
 
 unzipFile()
