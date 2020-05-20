@@ -29,8 +29,8 @@ def unicode2utf8(data, ignore_dicts = False):
     return data
 
 class mail:
-    apiKey = 'LTAI4FsrJyZdePmsP8cwo7FQ'
-    apiSecret='4tBKRmwWLKR6QG43IA5SfKHsGMy9du&'
+    apiKey = 
+    apiSecret=
     accountName ='info@m.beavotech.com'
     def sign(self,message):
         h = hmac.new(str.encode(self.apiSecret), str.encode(message), digestmod = 'sha1')

@@ -20,7 +20,7 @@ def _format_addr(s):
 
 smtp_sever = 'smtp.qq.com'
 from_addr = '1728951866@qq.com'
-password = 'jqcatvluhvhvjaii'
+password = 
 to_addr = '1728951866@qq.com'
 
 msg = MIMEText(sys.argv[1], 'plain', 'utf-8')
